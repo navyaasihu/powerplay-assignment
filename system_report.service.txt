@@ -1,6 +1,0 @@
-[Unit]
-Description=Run system_report.sh once
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/system_report.sh >> /var/log/system_report.log 2>&1

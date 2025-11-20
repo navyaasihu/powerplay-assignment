@@ -10,22 +10,18 @@ This repository contains all files, scripts, and documentation used to complete 
 
 ```
 repo-root/
-├─ README.md                      # (this file)
+├─ README.md                      
 ├─ scripts/
-│  ├─ system_report.sh            # Monitoring script
-│  ├─ disk_alert.sh               # Disk alert script (mailutils)
+│  ├─ system_report.sh           
 ├─ systemd/
 │  ├─ system_report.service
 │  ├─ system_report.timer
-│  ├─ disk_alert.service
-│  ├─ disk_alert.timer
 ├─ cloudwatch/
 │  ├─ amazon-cloudwatch-agent.json
-├─ screenshots/                   # Place screenshots here using the filenames below
-└─ assignment.pdf                 # Original assignment (local copy)
+├─ screenshots/               
+└─ assignment.pdf                 
 ```
 
-**Assignment PDF (uploaded):** `/mnt/data/DevOps Intern Assignment - Powerplay.pdf`
 
 ---
 

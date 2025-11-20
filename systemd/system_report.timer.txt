@@ -1,0 +1,11 @@
+[Unit]
+Description=Run system_report.sh every 5 minutes
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

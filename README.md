@@ -16,10 +16,7 @@ repo-root/
 ├─ systemd/
 │  ├─ system_report.service
 │  ├─ system_report.timer
-├─ cloudwatch/
-│  ├─ amazon-cloudwatch-agent.json
-├─ screenshots/               
-└─ assignment.pdf                 
+├─ screenshots/                                
 ```
 
 
@@ -49,9 +46,9 @@ repo-root/
    * Verified logs in CloudWatch Console.
   
 
-5. **AWS CLI upload (additional deliverable)**
+5. **AWS CLI upload**
 
-   * Demonstrated how to push `/var/log/system_report.log` to CloudWatch using `aws logs put-log-events` (CLI). A safe JSON upload process was used to avoid invalid JSON errors.
+   * Demonstrated how to push `/var/log/system_report.log` to CloudWatch using `aws logs put-log-events` (CLI).
 
 ---
 
@@ -80,67 +77,39 @@ sudo apt install -y nginx sysstat mailutils python3-pip
 sudo chmod +x /usr/local/bin/system_report.sh 
 sudo systemctl daemon-reload
 sudo systemctl enable --now system_report.timer
-```
-
-**CloudWatch Agent (install & start)**
-
-```bash
-cd /tmp
-wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
-sudo dpkg -i amazon-cloudwatch-agent.deb
-sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null <<'EOF'
-{
-  "logs": {
-    "logs_collected": {
-      "files": {
-        "collect_list": [
-          {
-            "file_path": "/var/log/system_report.log",
-            "log_group_name": "/devops/intern-metrics",
-            "log_stream_name": "{instance_id}"
-          }
-        ]
-      }
-    }
-  }
-}
-EOF
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
-sudo systemctl enable --now amazon-cloudwatch-agent
-```
 
 **AWS CLI: create log group / stream and upload **
 
 ```bash
-aws logs create-log-group --log-group-name "/devops/intern-metrics" || true
-aws logs create-log-stream --log-group-name "/devops/intern-metrics" --log-stream-name "cli-upload" || true
+aws logs create-log-group --log-group-name "/devops/intern-metrics"
+
+aws logs create-log-stream \ --log-group-name "/devops/intern-metrics" \ --log-stream-name "cli-upload"
+
+LOG_DATA=$(sed ':a;N;$!ba;s/\n/ /g' /var/log/system_report.log)
+
+aws logs put-log-events \
+  --log-group-name "/devops/intern-metrics" \
+  --log-stream-name "cli-upload" \
+  --log-events "[{\"timestamp\": $(date +%s000), \"message\": \"$LOG_DATA\"}]"
+  
+```
 # create valid JSON events file (python method) and upload as described in the repo
 ```
 
 ---
 
-## Screenshots to include (filenames suggested)
+## Screenshots 
 
 Place screenshots under `/screenshots`.
 
 ---
 
-## How to reproduce (short steps)
+## How to proceed
 
 1. Launch Ubuntu EC2 (t2.micro) in `ap-south-1`.
 2. Attach IAM role `EC2-CloudWatch-Agent-Role` with policies: `CloudWatchAgentServerPolicy` and `AmazonSSMManagedInstanceCore`.
 3. SSH into instance and run the commands from **Key commands** section.
 4. Verify nginx page, system_report log, systemd timers, CloudWatch logs, and mail alerts.
-
----
-
-## Notes & Troubleshooting
-
-* If `aws logs put-log-events` fails with `Invalid JSON` or `Invalid control character`, use the JSON-creation approach using Python (or upload as a single escaped message). Example commands are in the `cloudwatch/` section.
-* If CloudWatch `AccessDenied` occurs when deleting a log group, you likely lack permissions to perform `logs:DeleteLogGroup`. Use a different log stream name or ask an admin to attach the minimal policy.
-* On fresh AWS accounts, some services may take a few minutes to activate after account creation.
-
----
 
 
 ---

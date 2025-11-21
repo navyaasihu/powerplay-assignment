@@ -12,11 +12,16 @@ This repository contains all files, scripts, and documentation used to complete 
 repo-root/
 ├─ README.md                      
 ├─ scripts/
-│  ├─ system_report.sh           
+│  ├─ system_report.sh            
+│  ├─ disk_alert.sh               
 ├─ systemd/
 │  ├─ system_report.service
 │  ├─ system_report.timer
-├─ screenshots/                                
+│  ├─ disk_alert.service
+│  ├─ disk_alert.timer
+├─ cloudwatch/
+│  ├─ amazon-cloudwatch-agent.json
+├─ screenshots/                  
 ```
 
 
@@ -44,11 +49,16 @@ repo-root/
 
    * Installed Amazon CloudWatch Agent and configured it to ship `/var/log/system_report.log` to CloudWatch Log Group `/devops/intern-metrics` (log stream = instance id).
    * Verified logs in CloudWatch Console.
-  
 
-5. **AWS CLI upload**
+5. **Bonus — Disk alert**
 
-   * Demonstrated how to push `/var/log/system_report.log` to CloudWatch using `aws logs put-log-events` (CLI).
+   * Implemented `/usr/local/bin/disk_alert.sh` and a systemd timer `disk_alert.timer` to run every 10 minutes.
+   * Sends email using `mail` (mailutils) when disk usage > 80%.
+   * (Alternative recommended approach: SNS or SES — instructions included in comments of `disk_alert.sh`.)
+
+6. **AWS CLI upload (additional deliverable)**
+
+   * Demonstrated how to push `/var/log/system_report.log` to CloudWatch using `aws logs put-log-events` (CLI). A safe JSON upload process was used to avoid invalid JSON errors.
 
 ---
 
@@ -62,7 +72,7 @@ repo-root/
 
 * `system_report.service` and `system_report.timer` — run system_report every 5m
 
-### Key commands run on the EC2 instance (examples to reproduce)
+### Key commands run on the EC2 instance 
 
 **Install packages & update**
 
@@ -74,38 +84,57 @@ sudo apt install -y nginx sysstat mailutils python3-pip
 **Make scripts & services executable & enable timers**
 
 ```bash
-sudo chmod +x /usr/local/bin/system_report.sh 
+sudo chmod +x /usr/local/bin/system_report.sh /usr/local/bin/disk_alert.sh
 sudo systemctl daemon-reload
-sudo systemctl enable --now system_report.timer
-
-**AWS CLI: create log group / stream and upload **
-
-```bash
-aws logs create-log-group --log-group-name "/devops/intern-metrics"
-
-aws logs create-log-stream \ --log-group-name "/devops/intern-metrics" \ --log-stream-name "cli-upload"
-
-aws logs put-log-events \
-  --log-group-name "/devops/intern-metrics" \
-  --log-stream-name "cli-upload" \
-  --log-events "[{\"timestamp\": $(date +%s000), \"message\": \"$LOG_DATA\"}]"
-  
+sudo systemctl enable system_report.timer
 ```
 
-## Screenshots 
+**CloudWatch Agent (install & start)**
 
-Place screenshots under `/screenshots`.
+```bash
+cd /tmp
+wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+sudo dpkg -i amazon-cloudwatch-agent.deb
+sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null <<'EOF'
+{
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/system_report.log",
+            "log_group_name": "/devops/intern-metrics",
+            "log_stream_name": "{instance_id}"
+          }
+        ]
+      }
+    }
+  }
+}
+EOF
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+sudo systemctl enable amazon-cloudwatch-agent
+```
+
+**AWS CLI: create log group upload**
+
+```bash
+aws logs create-log-group --log-group-name "/devops/intern-metrics" || true
+aws logs create-log-stream --log-group-name "/devops/intern-metrics" --log-stream-name "cli-upload" || true
+# create valid JSON events file (python method) and upload as described in the repo
+```
 
 ---
 
-## How to proceed
+
+## How to start
 
 1. Launch Ubuntu EC2 (t2.micro) in `ap-south-1`.
 2. Attach IAM role `EC2-CloudWatch-Agent-Role` with policies: `CloudWatchAgentServerPolicy` and `AmazonSSMManagedInstanceCore`.
 3. SSH into instance and run the commands from **Key commands** section.
 4. Verify nginx page, system_report log, systemd timers, CloudWatch logs, and mail alerts.
 
-
 ---
+
 
 

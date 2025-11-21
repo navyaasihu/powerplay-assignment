@@ -119,5 +119,5 @@ aws logs create-log-stream --log-group-name "/devops/intern-metrics" --log-strea
 
 ---
 
-
+Remark : For the given files used the t3.micro as t2.micro was not accessible in the free plan.
 

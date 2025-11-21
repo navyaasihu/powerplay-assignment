@@ -85,8 +85,6 @@ aws logs create-log-group --log-group-name "/devops/intern-metrics"
 
 aws logs create-log-stream \ --log-group-name "/devops/intern-metrics" \ --log-stream-name "cli-upload"
 
-LOG_DATA=$(sed ':a;N;$!ba;s/\n/ /g' /var/log/system_report.log)
-
 aws logs put-log-events \
   --log-group-name "/devops/intern-metrics" \
   --log-stream-name "cli-upload" \

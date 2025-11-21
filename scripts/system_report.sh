@@ -12,6 +12,10 @@ log_file() {
     fi
 }
 
+change_log_ownership() {
+    chown devops_intern:devops_intern "$LOG_PATH" 2>/dev/null
+}
+
 
 # Get CPU Usage
 get_cpu() {
@@ -45,6 +49,7 @@ get_top_processes() {
 # Main Report Function
 main() {
     log_file
+    change_log_ownership
     
     local timestamp uptime cpu memory disk top3
 
@@ -71,3 +76,4 @@ EOF
 # Script Execution
 
 main
+

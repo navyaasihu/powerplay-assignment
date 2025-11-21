@@ -12,7 +12,9 @@ This repository contains all files, scripts, and documentation used to complete 
 repo-root/
 ├─ README.md                      
 ├─ scripts/
-│  ├─ system_report.sh                         
+│  ├─ system_report.sh
+├─ cron/
+│  ├─ system_report                      
 ├─ systemd/
 │  ├─ system_report
 │  ├─ system_report.service

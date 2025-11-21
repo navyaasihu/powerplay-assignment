@@ -2,7 +2,7 @@
 
 **Candidate:** Navya Srivastava
 
-This repository contains all files, scripts, and documentation used to complete the PowerPlay DevOps Engineering intern assignment. It also documents the commands I ran, verification steps, and the screenshots to include in the submission.
+This repository contains all files, scripts, and documentation used to complete the PowerPlay DevOps Engineering intern assignment. 
 
 ---
 

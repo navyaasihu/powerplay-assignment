@@ -12,13 +12,11 @@ This repository contains all files, scripts, and documentation used to complete 
 repo-root/
 ├─ README.md                      
 ├─ scripts/
-│  ├─ system_report.sh            
-│  ├─ disk_alert.sh               
+│  ├─ system_report.sh                         
 ├─ systemd/
+│  ├─ system_report
 │  ├─ system_report.service
 │  ├─ system_report.timer
-│  ├─ disk_alert.service
-│  ├─ disk_alert.timer
 ├─ cloudwatch/
 │  ├─ amazon-cloudwatch-agent.json
 ├─ screenshots/                  
@@ -78,7 +76,7 @@ repo-root/
 
 ```bash
 sudo apt update
-sudo apt install -y nginx sysstat mailutils python3-pip
+sudo apt install -y nginx sysstat python3-pip
 ```
 
 **Make scripts & services executable & enable timers**
@@ -105,7 +103,6 @@ sudo systemctl enable amazon-cloudwatch-agent
 ```bash
 aws logs create-log-group --log-group-name "/devops/intern-metrics" || true
 aws logs create-log-stream --log-group-name "/devops/intern-metrics" --log-stream-name "cli-upload" || true
-# create valid JSON events file (python method) and upload as described in the repo
 ```
 
 ---
@@ -116,7 +113,7 @@ aws logs create-log-stream --log-group-name "/devops/intern-metrics" --log-strea
 1. Launch Ubuntu EC2 (t2.micro) in `ap-south-1`.
 2. Attach IAM role `EC2-CloudWatch-Agent-Role` with policies: `CloudWatchAgentServerPolicy` and `AmazonSSMManagedInstanceCore`.
 3. SSH into instance and run the commands from **Key commands** section.
-4. Verify nginx page, system_report log, systemd timers, CloudWatch logs, and mail alerts.
+4. Verify nginx page, system_report log, systemd timers, CloudWatch logs.
 
 ---
 

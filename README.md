@@ -93,10 +93,6 @@ aws logs put-log-events \
   --log-events "[{\"timestamp\": $(date +%s000), \"message\": \"$LOG_DATA\"}]"
   
 ```
-# create valid JSON events file (python method) and upload as described in the repo
-```
-
----
 
 ## Screenshots 
 

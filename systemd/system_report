@@ -1,0 +1,3 @@
+# /etc/cron.d/system_report
+# Run system_report every 5 minutes as root and append output to /var/log/system_report.log
+*/5 * * * * root /usr/local/bin/system_report.sh >> /var/log/system_report.log 2>&1

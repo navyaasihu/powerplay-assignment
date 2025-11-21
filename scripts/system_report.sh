@@ -12,6 +12,7 @@ log_file() {
     fi
 }
 
+# file should be owned by user
 change_log_ownership() {
     chown devops_intern:devops_intern "$LOG_PATH" 2>/dev/null
 }
@@ -76,4 +77,5 @@ EOF
 # Script Execution
 
 main
+
 
